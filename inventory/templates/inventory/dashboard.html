@@ -1,0 +1,24 @@
+<!-- templates/inventory/dashboard.html -->
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Low Stock Alerts -->
+    <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow">
+        <h2 class="text-2xl font-bold mb-4">Inventory Overview</h2>
+        <!-- Add inventory charts/metrics here -->
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-2xl font-bold mb-4">Quick Actions</h2>
+        <div class="space-y-4">
+            <a href="{% url 'item-create' %}" class="block bg-blue-600 text-white p-4 rounded hover:bg-blue-700">
+                Add New Item
+            </a>
+            <a href="{% url 'product_create' %}" class="block bg-green-600 text-white p-4 rounded hover:bg-green-700">
+                Add New Product
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

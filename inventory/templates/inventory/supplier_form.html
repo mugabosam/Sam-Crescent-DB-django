@@ -1,0 +1,50 @@
+<!-- inventory/supplier_form.html -->
+{% extends "inventory/base.html" %}
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+  <h1 class="text-3xl font-bold text-gray-800 mb-6">
+    {% if object %}Edit Supplier{% else %}Create New Supplier{% endif %}
+  </h1>
+
+  <form method="post" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+      Please correct the errors below
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="id_email">
+          Email
+        </label>
+        {{ form.email }}
+        {% for error in form.email.errors %}
+          <p class="text-red-500 text-xs italic">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="id_phone">
+          Phone
+        </label>
+        {{ form.phone }}
+        {% for error in form.phone.errors %}
+          <p class="text-red-500 text-xs italic">{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between mt-6">
+      <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded" type="submit">
+        {% if object %}Update{% else %}Create{% endif %} Supplier
+      </button>
+      <a href="{% url 'supplier_list' %}" class="text-gray-600 hover:text-gray-800">
+        Cancel
+      </a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+<!-- templates/inventory/item_list.html -->
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="mb-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">Inventory Items</h1>
+        <div class="space-x-4">
+            <a href="{% url 'item-create' %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                Add Item
+            </a>
+            <a href="?export=true" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                Export CSV
+            </a>
+        </div>
+    </div>
+
+    <form method="get" class="mb-6">
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Search items..."
+               class="w-full p-2 border rounded-lg">
+    </form>
+
+    {% if low_stock_items %}
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+        <h2 class="font-bold mb-2">Low Stock Alerts</h2>
+        <ul>
+            {% for item in low_stock_items %}
+            <li>{{ item.name }} - Only {{ item.stock }} remaining</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+            <!-- Table structure similar to product_list.html -->
+        </table>
+    </div>
+</div>
+{% endblock %}
