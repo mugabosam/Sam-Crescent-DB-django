@@ -1,40 +1,281 @@
-<!-- templates/inventory/item_list.html -->
 {% extends "inventory/base.html" %}
 
+{% block title %}Inventory Items | InFlow Counts{% endblock %}
+
+{% block extra_head %}
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-row {
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+    .low-stock-row {
+        background-color: #fef3c7;
+        transition: background-color 0.3s ease;
+    }
+    .critical-stock-row {
+        background-color: #fee2e2;
+        transition: background-color 0.3s ease;
+    }
+    .hover-scale {
+        transition: transform 0.2s ease;
+    }
+    .hover-scale:hover {
+        transform: scale(1.03);
+    }
+    .search-input:focus {
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+        border-color: #6366f1;
+    }
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 9999px;
+        font-weight: 600;
+    }
+    .stock-bar {
+        height: 6px;
+        border-radius: 3px;
+        background-color: #e5e7eb;
+    }
+    .stock-bar-fill {
+        height: 100%;
+        border-radius: 3px;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="mb-6">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold">Inventory Items</h1>
-        <div class="space-x-4">
-            <a href="{% url 'item-create' %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                Add Item
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+        <div class="mb-4 md:mb-0">
+            <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+                <i class="fas fa-boxes text-blue-600 mr-3"></i> Inventory Items
+            </h1>
+            <p class="mt-2 text-gray-600">Manage and track your inventory items</p>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{% url 'item-create' %}" 
+               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover-scale">
+                <i class="fas fa-plus-circle mr-2"></i> Add Item
             </a>
-            <a href="?export=true" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-                Export CSV
+            <a href="?export=true" 
+               class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover-scale">
+                <i class="fas fa-file-export mr-2"></i> Export
             </a>
         </div>
     </div>
 
-    <form method="get" class="mb-6">
-        <input type="text" name="q" value="{{ search_query }}" placeholder="Search items..."
-               class="w-full p-2 border rounded-lg">
-    </form>
+    <!-- Search and Filters -->
+    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="md:col-span-2">
+                <label for="search" class="sr-only">Search items</label>
+                <div class="relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                    <input type="text" name="q" id="search" value="{{ search_query }}" 
+                           class="search-input block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 sm:text-sm" 
+                           placeholder="Search items...">
+                </div>
+            </div>
+            <div>
+                <label for="category" class="sr-only">Category</label>
+                <select id="category" name="category" 
+                        class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}" {% if selected_category == category.id %}selected{% endif %}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="status" class="sr-only">Status</label>
+                <select id="status" name="status" 
+                        class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                    <option value="">All Statuses</option>
+                    <option value="low" {% if selected_status == 'low' %}selected{% endif %}>Low Stock</option>
+                    <option value="critical" {% if selected_status == 'critical' %}selected{% endif %}>Critical Stock</option>
+                    <option value="in_stock" {% if selected_status == 'in_stock' %}selected{% endif %}>In Stock</option>
+                </select>
+            </div>
+        </form>
+    </div>
 
+    <!-- Low Stock Alert -->
     {% if low_stock_items %}
-    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-        <h2 class="font-bold mb-2">Low Stock Alerts</h2>
-        <ul>
-            {% for item in low_stock_items %}
-            <li>{{ item.name }} - Only {{ item.stock }} remaining</li>
-            {% endfor %}
-        </ul>
+    <div class="bg-gradient-to-r from-yellow-50 to-yellow-100 border-l-4 border-yellow-400 p-4 rounded-r-lg mb-6 animate-card">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-yellow-800">Low Stock Alerts</h3>
+                <div class="mt-2 text-sm text-yellow-700">
+                    <ul class="list-disc pl-5 space-y-1">
+                        {% for item in low_stock_items %}
+                        <li>
+                            <span class="font-medium">{{ item.name }}</span> - 
+                            Only {{ item.stock }} remaining (Reorder at {{ item.reorder_level }})
+                            <a href="{% url 'item-update' item.id %}" class="text-yellow-600 hover:text-yellow-800 ml-2">
+                                <i class="fas fa-edit"></i> Restock
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
     {% endif %}
 
+    <!-- Inventory Items Table -->
     <div class="bg-white rounded-lg shadow overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-            <!-- Table structure similar to product_list.html -->
-        </table>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Item
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Category
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Stock Level
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for item in object_list %}
+                    <tr class="animate-row {% if item.stock < item.reorder_level %}critical-stock-row{% elif item.stock < item.reorder_level|add:5 %}low-stock-row{% endif %}" style="animation-delay: {{ forloop.counter0|divisibleby:2|yesno:'0.1s,0.2s' }}">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <i class="fas fa-box text-blue-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">{{ item.name }}</div>
+                                    <div class="text-sm text-gray-500">SKU: {{ item.sku|default:"N/A" }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ item.category.name|default:"-" }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">{{ item.stock }} / {{ item.capacity }}</div>
+                            <div class="mt-1 stock-bar">
+                                <div class="stock-bar-fill bg-{% if item.stock < item.reorder_level %}red{% elif item.stock < item.reorder_level|add:5 %}yellow{% else %}green{% endif %}-500" 
+                                     style="width: {% widthratio item.stock item.capacity 100 %}%"></div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="status-badge 
+                                {% if item.stock < item.reorder_level %}bg-red-100 text-red-800
+                                {% elif item.stock < item.reorder_level|add:5 %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-green-100 text-green-800{% endif %}">
+                                {% if item.stock < item.reorder_level %}Critical
+                                {% elif item.stock < item.reorder_level|add:5 %}Low
+                                {% else %}In Stock{% endif %}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex justify-end space-x-3">
+                                <a href="{% url 'item-detail' item.pk %}" 
+                                   class="text-blue-600 hover:text-blue-900 hover-scale" 
+                                   title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'item-update' item.pk %}" 
+                                   class="text-indigo-600 hover:text-indigo-900 hover-scale" 
+                                   title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'item-delete' item.pk %}" 
+                                   class="text-red-600 hover:text-red-900 hover-scale" 
+                                   title="Delete">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                            No items found matching your criteria
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="mt-6 flex items-center justify-between">
+        <div class="text-sm text-gray-700">
+            Showing <span class="font-medium">{{ page_obj.start_index }}</span> to <span class="font-medium">{{ page_obj.end_index }}</span> of <span class="font-medium">{{ page_obj.paginator.count }}</span> results
+        </div>
+        <div class="flex space-x-2">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}" 
+               class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Previous
+            </a>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <a href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}" 
+                   class="relative inline-flex items-center px-4 py-2 border border-blue-500 text-sm font-medium rounded-md text-white bg-blue-600">
+                    {{ num }}
+                </a>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}" 
+                   class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    {{ num }}
+                </a>
+                {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}" 
+               class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Next
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-submit form when filters change
+    document.getElementById('category').addEventListener('change', function() {
+        this.form.submit();
+    });
+    document.getElementById('status').addEventListener('change', function() {
+        this.form.submit();
+    });
+
+    // Add animation delays to rows
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach((row, index) => {
+        row.style.animationDelay = `${index * 0.05}s`;
+    });
+});
+</script>
 {% endblock %}

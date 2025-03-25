@@ -1,124 +1,215 @@
 {% extends 'inventory/base.html' %}
 
-{% block title %}Welcome to InventoryPro{% endblock %}
+{% block title %}Welcome to InFlow Counts{% endblock %}
 
-{% block page_title %}Inventory Management Made Simple{% endblock %}
+{% block extra_head %}
+<style>
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+    .floating { animation: float 6s ease-in-out infinite; }
+    .gradient-text {
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+</style>
+{% endblock %}
 
-{% block breadcrumbs %}
-<li>
-    <div class="flex items-center">
-        <i class="fas fa-angle-right text-gray-400 mx-2"></i>
-        <span class="text-sm font-medium text-gray-500">Welcome</span>
-    </div>
-</li>
+{% block page_title %}
+<div class="flex items-center justify-center">
+    <span class="gradient-text text-4xl md:text-5xl font-bold">Inventory Intelligence</span>
+</div>
 {% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4">
+<div class="overflow-hidden">
     <!-- Hero Section -->
-    <section class="bg-gradient-to-r from-primary-600 to-secondary-600 rounded-xl shadow-xl p-8 mb-12 text-white">
-        <div class="flex flex-col md:flex-row items-center">
-            <div class="md:w-1/2 mb-8 md:mb-0">
-                <h1 class="text-4xl font-bold mb-4">Streamline Your Inventory</h1>
-                <p class="text-xl mb-6">Powerful, intuitive inventory management for businesses of all sizes. Track, manage, and optimize your stock with ease.</p>
-                <div class="flex flex-col sm:flex-row gap-4">
-                    {% if user.is_authenticated %}
-                        <a href="#" class="bg-white text-primary-700 hover:bg-gray-100 font-bold py-3 px-6 rounded-lg text-center transition duration-300">
-                            Go to Dashboard <i class="fas fa-arrow-right ml-2"></i>
-                        </a>
-                    {% else %}
-                        <a href="{% url 'register' %}" class="bg-white text-primary-700 hover:bg-gray-100 font-bold py-3 px-6 rounded-lg text-center transition duration-300">
-                            Get Started <i class="fas fa-rocket ml-2"></i>
-                        </a>
-                        <a href="{% url 'login' %}" class="bg-transparent border-2 border-white hover:bg-white hover:text-primary-700 font-bold py-3 px-6 rounded-lg text-center transition duration-300">
-                            Login <i class="fas fa-sign-in-alt ml-2"></i>
-                        </a>
-                    {% endif %}
+    <section class="relative bg-gradient-to-br from-blue-50 to-purple-50 py-20 px-4 sm:px-6 lg:px-8">
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+        </div>
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col lg:flex-row items-center">
+                <div class="lg:w-1/2 mb-12 lg:mb-0 lg:pr-12">
+                    <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                        <span class="gradient-text">InFlow Counts</span> - Smarter Inventory Control
+                    </h1>
+                    <p class="text-xl text-gray-600 mb-8 leading-relaxed">
+                        Transform your inventory management with our AI-powered platform that predicts demand, prevents stockouts, and maximizes your profitability.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'dashboard_list' %}" class="bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 text-white font-bold py-4 px-8 rounded-lg text-center transition duration-300 transform hover:scale-105 shadow-lg">
+                                Go to Dashboard <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        {% else %}
+                            <a href="{% url 'register' %}" class="bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 text-white font-bold py-4 px-8 rounded-lg text-center transition duration-300 transform hover:scale-105 shadow-lg">
+                                Start Free Trial <i class="fas fa-rocket ml-2"></i>
+                            </a>
+                            <a href="{% url 'login' %}" class="bg-white border-2 border-primary-600 text-primary-600 hover:bg-primary-50 font-bold py-4 px-8 rounded-lg text-center transition duration-300 transform hover:scale-105 shadow-lg">
+                                Live Demo <i class="fas fa-play-circle ml-2"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                    <div class="mt-8 flex items-center space-x-6">
+                        <div class="flex -space-x-2">
+                            <img class="w-10 h-10 rounded-full border-2 border-white" src="https://randomuser.me/api/portraits/women/12.jpg" alt="Happy customer">
+                            <img class="w-10 h-10 rounded-full border-2 border-white" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Happy customer">
+                            <img class="w-10 h-10 rounded-full border-2 border-white" src="https://randomuser.me/api/portraits/women/45.jpg" alt="Happy customer">
+                        </div>
+                        <div>
+                            <p class="text-gray-600"><span class="font-bold text-gray-900">500+</span> businesses trust us</p>
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <span class="text-gray-600 ml-2">4.9/5</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:w-1/2 relative">
+                    <div class="floating">
+                        <img src="/static/images/inve.jpg" alt="Inventory Analytics" class="w-full max-w-lg mx-auto">
+                    </div>
+                    <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-purple-200 rounded-full opacity-20"></div>
+                    <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-200 rounded-full opacity-20"></div>
                 </div>
             </div>
-            <div class="md:w-1/2">
-                <img src="https://illustrations.popsy.co/amber/digital-nomad.svg" alt="Inventory Management" class="w-full h-auto max-w-md mx-auto">
+        </div>
+    </section>
+
+    <!-- Trusted By Section -->
+    <section class="py-12 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-gray-500 mb-8">TRUSTED BY INNOVATIVE COMPANIES WORLDWIDE</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 items-center justify-center">
+                <img src="https://logo.clearbit.com/nike.com" alt="Nike" class="h-8 opacity-60 hover:opacity-100 transition duration-300 mx-auto">
+                <img src="https://logo.clearbit.com/starbucks.com" alt="Starbucks" class="h-10 opacity-60 hover:opacity-100 transition duration-300 mx-auto">
+                <img src="https://logo.clearbit.com/tesla.com" alt="Tesla" class="h-6 opacity-60 hover:opacity-100 transition duration-300 mx-auto">
+                <img src="https://logo.clearbit.com/airbnb.com" alt="Airbnb" class="h-8 opacity-60 hover:opacity-100 transition duration-300 mx-auto">
+                <img src="https://logo.clearbit.com/shopify.com" alt="Shopify" class="h-10 opacity-60 hover:opacity-100 transition duration-300 mx-auto">
+                <img src="https://logo.clearbit.com/uber.com" alt="Uber" class="h-8 opacity-60 hover:opacity-100 transition duration-300 mx-auto">
             </div>
         </div>
     </section>
 
     <!-- Features Section -->
-    <section class="mb-16">
-        <h2 class="text-3xl font-bold text-center mb-12">Why Choose InventoryPro?</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Feature 1 -->
-            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-l-4 border-primary-600">
-                <div class="text-primary-600 mb-4">
-                    <i class="fas fa-bolt text-4xl"></i>
-                </div>
-                <h3 class="text-xl font-bold mb-3">Real-Time Tracking</h3>
-                <p class="text-gray-600">Monitor your inventory levels in real-time with automatic updates and low-stock alerts.</p>
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Powerful Features for <span class="gradient-text">Smart Inventory</span></h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Everything you need to take control of your inventory and make data-driven decisions</p>
             </div>
 
-            <!-- Feature 2 -->
-            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-l-4 border-secondary-600">
-                <div class="text-secondary-600 mb-4">
-                    <i class="fas fa-chart-line text-4xl"></i>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="feature-card bg-dark p-8 rounded-xl shadow-md">
+                    <div class="w-14 h-14 bg-blue-100 rounded-lg flex items-center justify-center mb-6">
+                        <i class="fas fa-robot text-blue-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">AI Demand Forecasting</h3>
+                    <p class="text-gray-600 mb-4">Our algorithms predict future demand patterns to help you optimize stock levels and reduce waste.</p>
+                    <a href="#" class="text-primary-600 font-medium inline-flex items-center">
+                        Learn more <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
                 </div>
-                <h3 class="text-xl font-bold mb-3">Advanced Analytics</h3>
-                <p class="text-gray-600">Gain insights with powerful reporting tools to optimize your inventory and reduce costs.</p>
-            </div>
+                <!-- Feature 4 -->
+                <div class="feature-card bg-white p-8 rounded-xl shadow-md">
+                    <div class="w-14 h-14 bg-yellow-100 rounded-lg flex items-center justify-center mb-6">
+                        <i class="fas fa-file-invoice-dollar text-yellow-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Automated Reordering</h3>
+                    <p class="text-gray-600 mb-4">Set custom rules to automatically generate purchase orders when stock reaches threshold.</p>
+                    <a href="#" class="text-primary-600 font-medium inline-flex items-center">
+                        Learn more <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
 
-            <!-- Feature 3 -->
-            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-l-4 border-green-500">
-                <div class="text-green-500 mb-4">
-                    <i class="fas fa-mobile-alt text-4xl"></i>
+                <!-- Feature 5 -->
+                <div class="feature-card bg-white p-8 rounded-xl shadow-md">
+                    <div class="w-14 h-14 bg-red-100 rounded-lg flex items-center justify-center mb-6">
+                        <i class="fas fa-shield-check text-red-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Loss Prevention</h3>
+                    <p class="text-gray-600 mb-4">Identify discrepancies and potential theft with advanced variance reporting and alerts.</p>
+                    <a href="#" class="text-primary-600 font-medium inline-flex items-center">
+                        Learn more <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
                 </div>
-                <h3 class="text-xl font-bold mb-3">Mobile Friendly</h3>
-                <p class="text-gray-600">Access your inventory from anywhere, on any device with our responsive interface.</p>
             </div>
         </div>
     </section>
 
     <!-- How It Works -->
-    <section class="mb-16 bg-gray-50 p-8 rounded-xl">
-        <h2 class="text-3xl font-bold text-center mb-12">How It Works</h2>
-        <div class="flex flex-col md:flex-row gap-8 items-center">
-            <div class="md:w-1/2">
-                <div class="space-y-8">
-                    <!-- Step 1 -->
-                    <div class="flex items-start">
-                        <div class="bg-primary-600 text-white rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0 mr-4">
-                            <span class="font-bold">1</span>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold mb-2">Add Your Products</h3>
-                            <p class="text-gray-600">Quickly import your existing inventory or add products manually with our simple interface.</p>
-                        </div>
-                    </div>
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">How <span class="gradient-text">InFlow Counts</span> Works</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Get set up and running in minutes, not days</p>
+            </div>
 
-                    <!-- Step 2 -->
-                    <div class="flex items-start">
-                        <div class="bg-primary-600 text-white rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0 mr-4">
-                            <span class="font-bold">2</span>
+            <div class="flex flex-col lg:flex-row items-center">
+                <div class="lg:w-1/2 mb-12 lg:mb-0 lg:pr-12">
+                    <div class="space-y-12">
+                        <!-- Step 1 -->
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <div class="flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 text-primary-600 font-bold text-xl">
+                                    1
+                                </div>
+                            </div>
+                            <div class="ml-6">
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">Connect Your Data</h3>
+                                <p class="text-gray-600">
+                                    Import existing inventory via CSV or connect directly to your eCommerce platform. Our AI will automatically categorize your products.
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="text-xl font-bold mb-2">Organize with Categories</h3>
-                            <p class="text-gray-600">Create categories and tags to keep your inventory neatly organized and easily searchable.</p>
-                        </div>
-                    </div>
 
-                    <!-- Step 3 -->
-                    <div class="flex items-start">
-                        <div class="bg-primary-600 text-white rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0 mr-4">
-                            <span class="font-bold">3</span>
+                        <!-- Step 2 -->
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <div class="flex items-center justify-center w-16 h-16 rounded-full bg-purple-100 text-purple-600 font-bold text-xl">
+                                    2
+                                </div>
+                            </div>
+                            <div class="ml-6">
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">Set Your Parameters</h3>
+                                <p class="text-gray-600">
+                                    Configure reorder points, preferred suppliers, and inventory policies tailored to your business needs.
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="text-xl font-bold mb-2">Track & Optimize</h3>
-                            <p class="text-gray-600">Monitor stock levels, set reorder points, and generate reports to make data-driven decisions.</p>
+
+                        <!-- Step 3 -->
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <div class="flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 text-blue-600 font-bold text-xl">
+                                    3
+                                </div>
+                            </div>
+                            <div class="ml-6">
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">Gain Insights</h3>
+                                <p class="text-gray-600">
+                                    Access real-time dashboards, receive smart alerts, and let our system optimize your inventory automatically.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="md:w-1/2">
-                <div class="bg-white p-6 rounded-xl shadow-lg">
-                    <div class="aspect-w-16 aspect-h-9">
-                        <img src="https://illustrations.popsy.co/amber/designer.svg" alt="Inventory Dashboard" class="w-full h-auto rounded-lg">
+                <div class="lg:w-1/2">
+                    <div class="bg-gray-50 p-6 rounded-xl shadow-inner border border-gray-100">
+                        <img src="https://illustrations.popsy.co/amber/digital-nomad.svg" alt="Dashboard Preview" class="w-full rounded-lg">
                     </div>
                 </div>
             </div>
@@ -126,85 +217,145 @@
     </section>
 
     <!-- Testimonials -->
-    <section class="mb-16">
-        <h2 class="text-3xl font-bold text-center mb-12">What Our Customers Say</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Testimonial 1 -->
-            <div class="bg-white p-6 rounded-xl shadow-lg">
-                <div class="flex items-center mb-4">
-                    <div class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center mr-4">
-                        <i class="fas fa-user text-primary-600 text-xl"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-bold">Sarah Johnson</h4>
-                        <p class="text-gray-500 text-sm">Retail Store Owner</p>
-                    </div>
-                </div>
-                <p class="text-gray-600 italic">"InventoryPro has transformed how we manage our stock. The real-time alerts have saved us from stockouts multiple times!"</p>
-                <div class="flex mt-4 text-yellow-400">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                </div>
+    <section class="py-20 bg-gradient-to-r from-primary-600 to-secondary-600">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-white mb-4">What Our Customers Say</h2>
+                <p class="text-xl text-primary-100 max-w-3xl mx-auto">Join thousands of businesses revolutionizing their inventory management</p>
             </div>
 
-            <!-- Testimonial 2 -->
-            <div class="bg-white p-6 rounded-xl shadow-lg">
-                <div class="flex items-center mb-4">
-                    <div class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center mr-4">
-                        <i class="fas fa-user text-primary-600 text-xl"></i>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <div class="flex items-center mb-6">
+                        <img class="w-12 h-12 rounded-full" src="https://randomuser.me/api/portraits/women/43.jpg" alt="Sarah K.">
+                        <div class="ml-4">
+                            <h4 class="font-bold text-gray-900">Sarah K.</h4>
+                            <p class="text-gray-500 text-sm">Retail Chain Owner</p>
+                        </div>
                     </div>
-                    <div>
-                        <h4 class="font-bold">Michael Chen</h4>
-                        <p class="text-gray-500 text-sm">Warehouse Manager</p>
+                    <p class="text-gray-600 italic mb-6">
+                        "InFlow Counts reduced our inventory costs by 28% in the first quarter. The demand forecasting is scarily accurate!"
+                    </p>
+                    <div class="flex text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
                     </div>
                 </div>
-                <p class="text-gray-600 italic">"The reporting features are incredible. We've reduced excess inventory by 30% since implementing InventoryPro."</p>
-                <div class="flex mt-4 text-yellow-400">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
+
+                <!-- Testimonial 2 -->
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <div class="flex items-center mb-6">
+                        <img class="w-12 h-12 rounded-full" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Michael T.">
+                        <div class="ml-4">
+                            <h4 class="font-bold text-gray-900">Michael T.</h4>
+                            <p class="text-gray-500 text-sm">Warehouse Director</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic mb-6">
+                        "The multi-location sync feature saved us 15 hours per week in manual tracking. Game changer for our 3PL business."
+                    </p>
+                    <div class="flex text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <div class="flex items-center mb-6">
+                        <img class="w-12 h-12 rounded-full" src="https://randomuser.me/api/portraits/women/65.jpg" alt="Priya M.">
+                        <div class="ml-4">
+                            <h4 class="font-bold text-gray-900">Priya M.</h4>
+                            <p class="text-gray-500 text-sm">E-commerce Founder</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic mb-6">
+                        "From stockouts to overstocking, InFlow Counts solved all our inventory problems. Our fulfillment rate is now 99.7%!"
+                    </p>
+                    <div class="flex text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Call to Action -->
-    <section class="bg-primary-700 text-white rounded-xl p-8 text-center">
-        <h2 class="text-3xl font-bold mb-4">Ready to Transform Your Inventory Management?</h2>
-        <p class="text-xl mb-6 max-w-2xl mx-auto">Join hundreds of businesses that trust InventoryPro to keep their operations running smoothly.</p>
-        <a href="{% if user.is_authenticated %}{% url 'item-create' %}{% else %}{% url 'register' %}{% endif %}"
-           class="inline-block bg-white text-primary-700 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg text-lg transition duration-300">
-            {% if user.is_authenticated %}Go to Dashboard{% else %}Start Free Trial{% endif %} <i class="fas fa-arrow-right ml-2"></i>
-        </a>
+    <!-- CTA Section -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-gradient-to-r from-primary-500 to-secondary-500 rounded-2xl shadow-xl overflow-hidden">
+                <div class="flex flex-col lg:flex-row">
+                    <div class="lg:w-1/2 p-12">
+                        <h2 class="text-3xl font-bold text-white mb-4">Ready to Transform Your Inventory?</h2>
+                        <p class="text-primary-100 text-xl mb-8">
+                            Join the inventory revolution and see why businesses love InFlow Counts.
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'dashboard_list' %}" class="bg-white text-primary-600 hover:bg-gray-100 font-bold py-4 px-8 rounded-lg text-center transition duration-300 transform hover:scale-105">
+                                    Go to Dashboard <i class="fas fa-arrow-right ml-2"></i>
+                                </a>
+                            {% else %}
+                                <a href="{% url 'register' %}" class="bg-white text-primary-600 hover:bg-gray-100 font-bold py-4 px-8 rounded-lg text-center transition duration-300 transform hover:scale-105">
+                                    Start Free Trial <i class="fas fa-rocket ml-2"></i>
+                                </a>
+                                <a href="#" class="bg-transparent border-2 border-white text-white hover:bg-white hover:bg-opacity-10 font-bold py-4 px-8 rounded-lg text-center transition duration-300 transform hover:scale-105">
+                                    Schedule Demo <i class="fas fa-calendar-alt ml-2"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="lg:w-1/2 bg-white bg-opacity-10 p-12 flex items-center justify-center">
+                        <div class="text-center">
+                            <div class="inline-flex items-center justify-center w-20 h-20 bg-white bg-opacity-20 rounded-full mb-6">
+                                <i class="fas fa-trophy text-white text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2">2023 Inventory Software of the Year</h3>
+                            <p class="text-primary-100">Recognized by Supply Chain Tech Awards</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
-    // Simple animation for features on scroll
+    // Animate elements when they come into view
     document.addEventListener('DOMContentLoaded', function() {
-        const features = document.querySelectorAll('.bg-white.p-6.rounded-xl');
+        const animateOnScroll = (elements, animationClass) => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add(animationClass);
+                    }
+                });
+            }, { threshold: 0.1 });
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.transform = 'translateY(0)';
-                    entry.target.style.opacity = '1';
-                }
+            elements.forEach(el => observer.observe(el));
+        };
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
             });
-        }, { threshold: 0.1 });
-
-        features.forEach(feature => {
-            feature.style.transform = 'translateY(20px)';
-            feature.style.opacity = '0';
-            feature.style.transition = 'all 0.5s ease-out';
-            observer.observe(feature);
         });
     });
 </script>

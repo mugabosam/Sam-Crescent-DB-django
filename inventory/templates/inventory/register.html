@@ -1,0 +1,246 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Register | InventoryPro{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl w-full flex flex-col md:flex-row bg-white rounded-2xl shadow-2xl overflow-hidden">
+        <!-- Left Side - Form -->
+        <div class="w-full md:w-1/2 p-8 sm:p-12">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-extrabold text-gray-900">
+                    Get started
+                </h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    Create your account to manage your inventory
+                </p>
+            </div>
+
+            <form class="mt-8 space-y-6" method="POST" action="{% url 'register' %}">
+                {% csrf_token %}
+
+                <!-- Error Messages -->
+                {% if form.errors %}
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 animate-fade-in">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-500"></i>
+                        </div>
+                        <div class="ml-3">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <p class="text-sm text-red-700">{{ error }}</p>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <p class="text-sm text-red-700">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="rounded-md shadow-sm space-y-4">
+                    <div class="animate-slide-up" style="animation-delay: 0.1s">
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                        <input id="username" name="username" type="text" required
+                            class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+                            placeholder="Choose a username">
+                    </div>
+
+                    <div class="animate-slide-up" style="animation-delay: 0.2s">
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input id="email" name="email" type="email" required
+                            class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+                            placeholder="your@email.com">
+                    </div>
+
+                    <div class="animate-slide-up" style="animation-delay: 0.3s">
+                        <label for="password1" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <div class="relative">
+                            <input id="password1" name="password1" type="password" required
+                                class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+                                placeholder="Create a password">
+                            <button type="button" class="absolute right-3 top-3 text-gray-400 hover:text-gray-500" onclick="togglePassword('password1', 'toggleIcon1')">
+                                <i class="far fa-eye" id="toggleIcon1"></i>
+                            </button>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">Minimum 8 characters with numbers and letters</p>
+                    </div>
+
+                    <div class="animate-slide-up" style="animation-delay: 0.4s">
+                        <label for="password2" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                        <div class="relative">
+                            <input id="password2" name="password2" type="password" required
+                                class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+                                placeholder="Confirm your password">
+                            <button type="button" class="absolute right-3 top-3 text-gray-400 hover:text-gray-500" onclick="togglePassword('password2', 'toggleIcon2')">
+                                <i class="far fa-eye" id="toggleIcon2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center animate-fade-in" style="animation-delay: 0.5s">
+                    <input id="terms" name="terms" type="checkbox" required
+                        class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                    <label for="terms" class="ml-2 block text-sm text-gray-700">
+                        I agree to the <a href="#" class="font-medium text-primary-600 hover:text-primary-500">Terms of Service</a> and <a href="#" class="font-medium text-primary-600 hover:text-primary-500">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <div class="animate-slide-up" style="animation-delay: 0.6s">
+                    <button type="submit"
+                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-300 transform hover:scale-105">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i class="fas fa-user-plus"></i>
+                        </span>
+                        Create Account
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-6 text-center animate-fade-in" style="animation-delay: 0.7s">
+                <p class="text-sm text-gray-600">
+                    Already have an account?
+                    <a href="{% url 'login' %}" class="font-medium text-primary-600 hover:text-primary-500">
+                        Sign in here
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Right Side - Marketing Content -->
+        <div class="hidden md:block w-1/2 bg-gradient-to-br from-primary-500 to-secondary-600 p-12 text-gray-darker text-center">
+            <div class="h-full flex flex-col justify-center">
+                <h3 class="text-3xl font-bold mb-6 animate-fade-in">Take Control of Your Inventory</h3>
+
+                <div class="space-y-6">
+                    <div class="flex items-start animate-slide-left" style="animation-delay: 0.2s">
+                        <div class="flex-shrink-0 bg-white bg-opacity-20 rounded-full p-2 mr-4">
+                            <i class="fas fa-layer-group text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg">Centralized Management</h4>
+                            <p class="text-white text-opacity-90">All your inventory data in one place, accessible from anywhere.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start animate-slide-left" style="animation-delay: 0.4s">
+                        <div class="flex-shrink-0 bg-white bg-opacity-20 rounded-full p-2 mr-4">
+                            <i class="fas fa-bell text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg">Smart Alerts</h4>
+                            <p class="text-white text-opacity-90">Get notified when stock is low or items need reordering.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start animate-slide-left" style="animation-delay: 0.6s">
+                        <div class="flex-shrink-0 bg-white bg-opacity-20 rounded-full p-2 mr-4">
+                            <i class="fas fa-file-export text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg">Easy Reporting</h4>
+                            <p class="text-white text-opacity-90">Generate and export reports with just a few clicks.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 border-t border-white border-opacity-20 pt-8 animate-fade-in">
+                    <blockquote class="italic">
+                        "Since switching to InventoryPro, we've reduced excess inventory by 25% and improved our order fulfillment rate."
+                    </blockquote>
+                    <div class="flex items-center mt-4">
+                        <div class="bg-white bg-opacity-20 rounded-full w-10 h-10 flex items-center justify-center mr-3">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <p class="font-semibold">Michael Rodriguez</p>
+                            <p class="text-sm text-white text-opacity-70">Warehouse Manager</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Toggle password visibility
+    function togglePassword(inputId, iconId) {
+        const passwordInput = document.getElementById(inputId);
+        const toggleIcon = document.getElementById(iconId);
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
+
+    // Password strength indicator (could be enhanced further)
+    document.getElementById('password1').addEventListener('input', function() {
+        const password = this.value;
+        const strengthIndicator = document.getElementById('password-strength');
+
+        if (password.length === 0) {
+            return;
+        }
+
+        // Simple strength calculation (could be more sophisticated)
+        let strength = 0;
+        if (password.length >= 8) strength += 1;
+        if (password.match(/[A-Z]/)) strength += 1;
+        if (password.match(/[0-9]/)) strength += 1;
+        if (password.match(/[^A-Za-z0-9]/)) strength += 1;
+    });
+</script>
+
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideLeft {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    .animate-slide-up {
+        animation: slideUp 0.6s ease-out forwards;
+    }
+
+    .animate-slide-left {
+        animation: slideLeft 0.6s ease-out forwards;
+    }
+</style>
+{% endblock %}

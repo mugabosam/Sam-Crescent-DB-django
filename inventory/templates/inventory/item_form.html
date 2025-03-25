@@ -1,0 +1,201 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} Item | InFlow Counts{% endblock %}
+
+{% block extra_head %}
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-form {
+        animation: fadeIn 0.6s ease-out forwards;
+    }
+    .input-focus:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    .btn-transition {
+        transition: all 0.3s ease;
+    }
+    .form-card {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    form{
+        background-color: darkgray;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-form">
+    <!-- Form Header -->
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+            {% if object %}
+                <i class="fas fa-edit text-purple-600 mr-2"></i>Edit Item
+            {% else %}
+                <i class="fas fa-plus-circle text-blue-600 mr-2"></i>Add New Item
+            {% endif %}
+        </h1>
+        <p class="text-gray-600">
+            {% if object %}
+                Update your inventory item details below
+            {% else %}
+                Fill in the details to add a new item to your inventory
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Form Container -->
+    <div class="bg-dark rounded-xl form-card overflow-hidden">
+        <form method="post" class="p-6 sm:p-8" action="{% url 'item-create' %}">
+            {% csrf_token %}
+
+            <!-- Form Fields -->
+            <div class="space-y-6">
+                {% for field in form %}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                    <div class="md:col-span-1">
+                        <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ field.label }}
+                            {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {% if field.help_text %}
+                        <p class="mt-1 text-xs text-gray-500">{{ field.help_text }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="md:col-span-2">
+                        {{ field }}
+                        {% if field.errors %}
+                        <div class="mt-1 text-sm text-red-600 flex items-start">
+                            <i class="fas fa-exclamation-circle mt-0.5 mr-1.5 flex-shrink-0"></i>
+                            {{ field.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Stock Level Preview (for existing items) -->
+            {% if object %}
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <h3 class="text-sm font-medium text-gray-700 mb-2">Stock Level Preview</h3>
+                <div class="flex items-center space-x-4">
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="bg-blue-600 h-2.5 rounded-full"
+                             style="width: {% widthratio object.stock object.capacity 100 %}%"></div>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">
+                        {{ object.stock }} / {{ object.capacity }} ({% widthratio object.stock object.capacity 100 %}%)
+                    </span>
+                </div>
+                <div class="flex justify-between mt-1 text-xs text-gray-500">
+                    <span>0</span>
+                    <span>Reorder: {{ object.reorder_level }}</span>
+                    <span>{{ object.capacity }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Form Actions -->
+            <div class="mt-10 pt-6 border-t border-gray-200 flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4">
+                <a href="{% url 'item-list' %}" class="btn-transition inline-flex items-center justify-center px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <i class="fas fa-times mr-2"></i> Cancel
+                </a>
+                <button type="submit" class="btn-transition inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform hover:scale-105">
+                    {% if object %}
+                        <i class="fas fa-save mr-2"></i> Update Item
+                    {% else %}
+                        <i class="fas fa-plus-circle mr-2"></i> Add Item
+                    {% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Additional Help Section -->
+    {% if not object %}
+    <div class="mt-8 bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-info-circle text-blue-400"></i>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">Quick Tips</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>Set reorder levels to receive automatic alerts</li>
+                        <li>Use consistent naming for easier searching</li>
+                        <li>Include all relevant details for accurate tracking</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add focus classes to all input fields
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.classList.add('input-focus', 'mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring-indigo-500', 'sm:text-sm');
+
+        // Add specific classes based on input type
+        if (input.tagName === 'SELECT') {
+            input.classList.add('py-2', 'pl-3', 'pr-10');
+        } else if (input.tagName === 'TEXTAREA') {
+            input.classList.add('py-2', 'px-3');
+        } else {
+            input.classList.add('py-2', 'px-3');
+        }
+    });
+
+    // Add real-time validation for stock levels
+    const stockField = document.getElementById('id_stock');
+    const reorderField = document.getElementById('id_reorder_level');
+    const capacityField = document.getElementById('id_capacity');
+
+    if (stockField && reorderField && capacityField) {
+        [stockField, reorderField, capacityField].forEach(field => {
+            field.addEventListener('input', validateStockLevels);
+        });
+    }
+
+    function validateStockLevels() {
+        const stock = parseFloat(stockField.value) || 0;
+        const reorder = parseFloat(reorderField.value) || 0;
+        const capacity = parseFloat(capacityField.value) || 0;
+
+        if (reorder > capacity) {
+            reorderField.classList.add('border-red-300', 'text-red-900');
+            document.getElementById('reorder-warning')?.remove();
+            const warning = document.createElement('p');
+            warning.id = 'reorder-warning';
+            warning.className = 'mt-1 text-sm text-red-600';
+            warning.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Reorder level cannot exceed capacity';
+            reorderField.parentNode.appendChild(warning);
+        } else {
+            reorderField.classList.remove('border-red-300', 'text-red-900');
+            document.getElementById('reorder-warning')?.remove();
+        }
+
+        if (stock > capacity) {
+            stockField.classList.add('border-red-300', 'text-red-900');
+            document.getElementById('stock-warning')?.remove();
+            const warning = document.createElement('p');
+            warning.id = 'stock-warning';
+            warning.className = 'mt-1 text-sm text-red-600';
+            warning.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Current stock cannot exceed capacity';
+            stockField.parentNode.appendChild(warning);
+        } else {
+            stockField.classList.remove('border-red-300', 'text-red-900');
+            document.getElementById('stock-warning')?.remove();
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,60 +1,324 @@
 {% extends 'inventory/base.html' %}
 
+{% block title %}Categories | InFlow Counts{% endblock %}
+
+{% block extra_head %}
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-row {
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+    .hover-scale {
+        transition: transform 0.2s ease;
+    }
+    .hover-scale:hover {
+        transform: scale(1.03);
+    }
+    .category-card:hover {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 9999px;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold text-gray-800">Categories</h1>
-    <a href="{% url 'category_create' %}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-      Add New Category
-    </a>
-  </div>
-
-  {% if messages %}
-  <div class="mb-4">
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} px-4 py-3 rounded relative" role="alert">
-      {{ message }}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+        <div class="mb-4 md:mb-0">
+            <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+                <i class="fas fa-tags text-blue-600 mr-3"></i> Product Categories
+            </h1>
+            <p class="mt-2 text-gray-600">Organize your inventory with categories</p>
+        </div>
+        <div>
+            <a href="{% url 'category_create' %}"
+               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover-scale">
+                <i class="fas fa-plus-circle mr-2"></i> Add Category
+            </a>
+        </div>
     </div>
-    {% endfor %}
-  </div>
-  {% endif %}
 
-  <div class="bg-white shadow-md rounded-lg overflow-hidden">
-    <table class="min-w-full leading-normal">
-      <thead class="bg-gray-50">
-        <tr>
-          <th class="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-            Name
-          </th>
-          <th class="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-            Description
-          </th>
-          <th class="px-5 py-3 border-b-2 border-gray-200"></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for category in categories %}
-        <tr class="hover:bg-gray-50">
-          <td class="px-5 py-4 border-b border-gray-200 text-sm">
-            {{ category.name }}
-          </td>
-          <td class="px-5 py-4 border-b border-gray-200 text-sm text-gray-600">
-            {{ category.description|default:"-" }}
-          </td>
-          <td class="px-5 py-4 border-b border-gray-200 text-sm text-right">
-            <a href="#" class="text-blue-500 hover:text-blue-700 mr-2">Edit</a>
-            <a href="#" class="text-red-500 hover:text-red-700">Delete</a>
-          </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="3" class="px-5 py-4 text-center text-gray-500">
-            No categories found
-          </td>
-        </tr>
+    <!-- Messages/Alerts -->
+    {% if messages %}
+    <div class="mb-6 space-y-2">
+        {% for message in messages %}
+        <div class="p-4 rounded-md {% if message.tags %}{{ message.tags }}{% endif %}
+            {% if message.tags == 'error' %}bg-red-100 border border-red-400 text-red-700
+            {% elif message.tags == 'success' %}bg-green-100 border border-green-400 text-green-700
+            {% elif message.tags == 'warning' %}bg-yellow-100 border border-yellow-400 text-yellow-700
+            {% else %}bg-blue-100 border border-blue-400 text-blue-700{% endif %}">
+            <div class="flex justify-between items-center">
+                <span>{{ message }}</span>
+                <button class="text-lg focus:outline-none" onclick="this.parentElement.parentElement.remove()">
+                    &times;
+                </button>
+            </div>
+        </div>
         {% endfor %}
-      </tbody>
-    </table>
-  </div>
+    </div>
+    {% endif %}
+
+    <!-- Category Display Options -->
+    <div class="mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div class="mb-4 sm:mb-0">
+                <label for="view-mode" class="sr-only">View Mode</label>
+                <div class="flex rounded-md shadow-sm">
+                    <button id="card-view" class="px-4 py-2 text-sm font-medium rounded-l-md bg-blue-100 text-blue-700 border border-blue-300">
+                        <i class="fas fa-th-large mr-2"></i> Cards
+                    </button>
+                    <button id="table-view" class="px-4 py-2 text-sm font-medium rounded-r-md bg-white text-gray-700 border border-gray-300">
+                        <i class="fas fa-table mr-2"></i> Table
+                    </button>
+                </div>
+            </div>
+            <div class="w-full sm:w-64">
+                <label for="search" class="sr-only">Search categories</label>
+                <div class="relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                    <input type="text" name="search" id="search"
+                           class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2"
+                           placeholder="Search categories...">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cards View -->
+    <div id="cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for category in categories %}
+        <div class="category-card bg-white rounded-lg shadow-md overflow-hidden animate-row hover-scale" style="animation-delay: {{ forloop.counter0|divisibleby:2|yesno:'0.1s,0.2s' }}">
+            <div class="p-6">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900">{{ category.name }}</h3>
+                        <div class="mt-1 flex items-center">
+                            <span class="badge bg-blue-100 text-blue-800">
+                                {{ category.product_set.count }} products
+                            </span>
+                            {% if category.parent %}
+                            <span class="badge bg-gray-100 text-gray-800 ml-2">
+                                Subcategory
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="bg-blue-50 p-2 rounded-full">
+                        <i class="fas fa-tag text-blue-600"></i>
+                    </div>
+                </div>
+
+                <p class="mt-3 text-sm text-gray-600">
+                    {{ category.description|default:"No description provided" }}
+                </p>
+
+                <div class="mt-6 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs text-gray-500">Created</p>
+                        <p class="text-sm font-medium text-gray-900">{{ category.created_at|date:"M d, Y" }}</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <a href="{% url 'category_update' category.pk %}"
+                           class="text-blue-600 hover:text-blue-900" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{% url 'category_delete' category.pk %}"
+                           class="text-red-600 hover:text-red-900" title="Delete">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-12">
+            <i class="fas fa-tags text-gray-300 text-5xl mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900">No categories found</h3>
+            <p class="mt-1 text-sm text-gray-500">Get started by creating your first category</p>
+            <div class="mt-6">
+                <a href="{% url 'category_create' %}"
+                   class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <i class="fas fa-plus-circle mr-2"></i> Add Category
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Table View (Hidden by default) -->
+    <div id="table-container" class="hidden bg-white rounded-lg shadow overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Category
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Description
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Products
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Parent Category
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for category in categories %}
+                    <tr class="animate-row hover:bg-gray-50" style="animation-delay: {{ forloop.counter0|divisibleby:2|yesno:'0.1s,0.2s' }}">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <i class="fas fa-tag text-blue-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">{{ category.name }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
+                            {{ category.description|default:"-" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ category.product_set.count }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {{ category.parent.name|default:"-" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex justify-end space-x-3">
+                                <a href="{% url 'category_update' category.pk %}"
+                                   class="text-blue-600 hover:text-blue-900" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'category_delete' category.pk %}"
+                                   class="text-red-600 hover:text-red-900" title="Delete">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="mt-6 flex items-center justify-between">
+        <div class="text-sm text-gray-700">
+            Showing <span class="font-medium">{{ page_obj.start_index }}</span> to <span class="font-medium">{{ page_obj.end_index }}</span> of <span class="font-medium">{{ page_obj.paginator.count }}</span> results
+        </div>
+        <div class="flex space-x-2">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}"
+               class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Previous
+            </a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <a href="?page={{ num }}"
+                   class="relative inline-flex items-center px-4 py-2 border border-blue-500 text-sm font-medium rounded-md text-white bg-blue-600">
+                    {{ num }}
+                </a>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}"
+                   class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    {{ num }}
+                </a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}"
+               class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Next
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // View mode toggle
+    const cardViewBtn = document.getElementById('card-view');
+    const tableViewBtn = document.getElementById('table-view');
+    const cardsContainer = document.getElementById('cards-container');
+    const tableContainer = document.getElementById('table-container');
+
+    cardViewBtn.addEventListener('click', function() {
+        cardsContainer.classList.remove('hidden');
+        tableContainer.classList.add('hidden');
+        cardViewBtn.classList.add('bg-blue-100', 'text-blue-700', 'border-blue-300');
+        cardViewBtn.classList.remove('bg-white', 'text-gray-700', 'border-gray-300');
+        tableViewBtn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
+        tableViewBtn.classList.remove('bg-blue-100', 'text-blue-700', 'border-blue-300');
+    });
+
+    tableViewBtn.addEventListener('click', function() {
+        cardsContainer.classList.add('hidden');
+        tableContainer.classList.remove('hidden');
+        tableViewBtn.classList.add('bg-blue-100', 'text-blue-700', 'border-blue-300');
+        tableViewBtn.classList.remove('bg-white', 'text-gray-700', 'border-gray-300');
+        cardViewBtn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
+        cardViewBtn.classList.remove('bg-blue-100', 'text-blue-700', 'border-blue-300');
+    });
+
+    // Search functionality
+    const searchInput = document.getElementById('search');
+    const categoryCards = document.querySelectorAll('.category-card');
+    const tableRows = document.querySelectorAll('tbody tr');
+
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+
+        // Filter cards view
+        categoryCards.forEach(card => {
+            const categoryName = card.querySelector('h3').textContent.toLowerCase();
+            if (categoryName.includes(searchTerm)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Filter table view
+        tableRows.forEach(row => {
+            const categoryName = row.querySelector('td:first-child div.text-sm.font-medium').textContent.toLowerCase();
+            if (categoryName.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Add animation delays to rows
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach((row, index) => {
+        row.style.animationDelay = `${index * 0.05}s`;
+    });
+});
+</script>
 {% endblock %}

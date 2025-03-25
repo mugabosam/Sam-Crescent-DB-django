@@ -1,0 +1,92 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Reports | InFlow Counts{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <i class="fas fa-file-alt text-blue-600 mr-3"></i> Inventory Reports
+            </h1>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for report in available_reports %}
+                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 hover:border-blue-300 transition duration-200">
+                    <h3 class="text-lg font-medium text-gray-900 mb-3">{{ report.name }}</h3>
+                    <p class="text-sm text-gray-600 mb-4">
+                        {% if report.slug == 'inventory-summary' %}
+                        Complete overview of all inventory items
+                        {% elif report.slug == 'low-stock' %}
+                        Products below reorder levels
+                        {% elif report.slug == 'category-analysis' %}
+                        Inventory distribution by category
+                        {% elif report.slug == 'supplier-performance' %}
+                        Supplier metrics and performance
+                        {% elif report.slug == 'transaction-history' %}
+                        Historical inventory transactions
+                        {% endif %}
+                    </p>
+                    <div class="flex space-x-2">
+                        <a href="{% url 'report_download' report.slug 'csv' %}"
+                           class="inline-flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <i class="fas fa-file-csv mr-1"></i> CSV
+                        </a>
+                        <a href="{% url 'report_download' report.slug 'excel' %}"
+                           class="inline-flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <i class="fas fa-file-excel mr-1"></i> Excel
+                        </a>
+                        <a href="{% url 'report_download' report.slug 'pdf' %}"
+                           class="inline-flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <i class="fas fa-file-pdf mr-1"></i> PDF
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Date Filter for Reports -->
+            <div class="mt-8 bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Custom Date Range</h3>
+                <form id="dateFilterForm" class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                    <div>
+                        <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
+                        <input type="date" id="start_date" name="start_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </div>
+                    <div>
+                        <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
+                        <input type="date" id="end_date" name="end_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </div>
+                    <div class="flex items-end">
+                        <button type="button" onclick="applyDateFilter()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                            <i class="fas fa-filter mr-2"></i> Apply Filter
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function applyDateFilter() {
+    const startDate = document.getElementById('start_date').value;
+    const endDate = document.getElementById('end_date').value;
+
+    if (startDate && endDate) {
+        // Update all download links with date parameters
+        document.querySelectorAll('a[href*="report"]').forEach(link => {
+            const url = new URL(link.href);
+            url.searchParams.set('start_date', startDate);
+            url.searchParams.set('end_date', endDate);
+            link.href = url.toString();
+        });
+
+        // Show success message
+        alert('Date filter applied to all reports. Click any download button to get filtered data.');
+    } else {
+        alert('Please select both start and end dates.');
+    }
+}
+</script>
+{% endblock %}

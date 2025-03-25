@@ -1,0 +1,217 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Login | InventoryPro{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl w-full flex flex-col md:flex-row bg-white rounded-2xl shadow-2xl overflow-hidden">
+        <!-- Left Side - Form -->
+        <div class="w-full md:w-1/2 p-8 sm:p-12">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-extrabold text-gray-900">
+                    Welcome back
+                </h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    Manage your inventory like a pro
+                </p>
+            </div>
+
+            <form class="mt-8 space-y-6" method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+
+                <!-- Error Messages -->
+                {% if form.errors %}
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 animate-fade-in">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-500"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-700">
+                                Your username and password didn't match. Please try again.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="rounded-md shadow-sm space-y-4">
+                    <div class="animate-slide-up" style="animation-delay: 0.1s">
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                        <input id="username" name="username" type="text" required
+                            class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+                            placeholder="Enter your username">
+                    </div>
+                    <div class="animate-slide-up" style="animation-delay: 0.2s">
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <div class="relative">
+                            <input id="password" name="password" type="password" required
+                                class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+                                placeholder="Enter your password">
+                            <button type="button" class="absolute right-3 top-3 text-gray-400 hover:text-gray-500" onclick="togglePassword()">
+                                <i class="far fa-eye" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between animate-fade-in" style="animation-delay: 0.3s">
+                    <div class="flex items-center">
+                        <input id="remember-me" name="remember-me" type="checkbox"
+                            class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                        <label for="remember-me" class="ml-2 block text-sm text-gray-700">
+                            Remember me
+                        </label>
+                    </div>
+
+                    <div class="text-sm">
+                        <a href="#" class="font-medium text-primary-600 hover:text-primary-500">
+                            Forgot your password?
+                        </a>
+                    </div>
+                </div>
+
+                <div class="animate-slide-up" style="animation-delay: 0.4s">
+                    <button type="submit"
+                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-300 transform hover:scale-105">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i class="fas fa-sign-in-alt"></i>
+                        </span>
+                        Sign in
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-6 text-center animate-fade-in" style="animation-delay: 0.5s">
+                <p class="text-sm text-gray-600">
+                    Don't have an account?
+                    <a href="{% url 'register' %}" class="font-medium text-primary-600 hover:text-primary-500">
+                        Register here
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Right Side - Marketing Content -->
+        <div class="md:block w-1/2 bg-gradient-to-br from-primary-500 to-secondary-600 p-12 text-dark-50 text-center">
+            <div class="h-full flex flex-col justify-center">
+                <h3 class="text-3xl font-bold mb-6 animate-fade-in">Inventory Management Simplified</h3>
+
+                <div class="space-y-6">
+                    <div class="flex items-start animate-slide-left">
+                        <div class="flex-shrink-0 bg-white bg-opacity-20 rounded-full p-2 mr-4">
+                            <i class="fas fa-box-open text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg">Real-time Tracking</h4>
+                            <p class="text-white text-opacity-90">Monitor your inventory levels with live updates and alerts.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start animate-slide-left" style="animation-delay: 0.4s">
+                        <div class="flex-shrink-0 bg-white bg-opacity-20 rounded-full p-2 mr-4">
+                            <i class="fas fa-chart-pie text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg">Powerful Analytics</h4>
+                            <p class="text-white text-opacity-90">Get insights to optimize your stock and reduce costs.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start animate-slide-left" style="animation-delay: 0.6s">
+                        <div class="flex-shrink-0 bg-white bg-opacity-20 rounded-full p-2 mr-4">
+                            <i class="fas fa-mobile-alt text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg">Mobile Friendly</h4>
+                            <p class="text-white text-opacity-90">Access your inventory from anywhere, on any device.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 border-t border-white border-opacity-20 pt-8 animate-fade-in">
+                    <blockquote class="italic">
+                        "InventoryPro has transformed how we manage our stock. The real-time alerts have saved us from stockouts multiple times!"
+                    </blockquote>
+                    <div class="flex items-center mt-4">
+                        <div class="bg-white bg-opacity-20 rounded-full w-10 h-10 flex items-center justify-center mr-3">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <p class="font-semibold">Sarah Johnson</p>
+                            <p class="text-sm text-white text-opacity-70">Retail Store Owner</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Toggle password visibility
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = document.getElementById('toggleIcon');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
+
+    // Add animation classes on load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Remove no-js class if present
+        document.documentElement.classList.remove('no-js');
+    });
+</script>
+
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideLeft {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    .animate-slide-up {
+        animation: slideUp 0.6s ease-out forwards;
+    }
+
+    .animate-slide-left {
+        animation: slideLeft 0.6s ease-out forwards;
+    }
+</style>
+{% endblock %}

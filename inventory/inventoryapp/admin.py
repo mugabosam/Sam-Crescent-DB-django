@@ -39,7 +39,16 @@ class InventoryItemAdmin(admin.ModelAdmin):
     list_display = ('product', 'quantity', 'location')
     search_fields = ('product__name', 'location__name')
 
+@admin.register(LoginLog)
+class LoginLogAdmin(admin.ModelAdmin):
+    list_display = ('user', 'timestamp', 'success', 'ip_address')
+    list_filter = ('success', 'timestamp')
+    search_fields = ('user__username', 'ip_address')
 
-
+@admin.register(RegistrationLog)
+class RegistrationLogAdmin(admin.ModelAdmin):
+    list_display = ('user', 'timestamp', 'ip_address')
+    list_filter = ('timestamp',)
+    search_fields = ('user__username', 'ip_address')
 
 

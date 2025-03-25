@@ -1,53 +1,232 @@
 {% extends 'inventory/base.html' %}
 
+{% block title %}{% if object %}Edit{% else %}Create{% endif %} Category | InFlow Counts{% endblock %}
+
+{% block extra_head %}
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-form {
+        animation: fadeIn 0.6s ease-out forwards;
+    }
+    .input-focus:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    .btn-transition {
+        transition: all 0.3s ease;
+    }
+    .form-card {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    .category-icon-preview {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        background-color: #e0e7ff;
+        color: #4f46e5;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mx-auto px-4 py-8 max-w-2xl">
-  <div class="bg-white shadow-md rounded-lg p-6">
-    <h2 class="text-2xl font-bold mb-6 text-gray-800">
-      {% if object %}Edit Category{% else %}Create New Category{% endif %}
-    </h2>
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-form">
+    <!-- Form Header -->
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+            {% if object %}
+                <i class="fas fa-edit text-purple-600 mr-2"></i>Edit Category
+            {% else %}
+                <i class="fas fa-plus-circle text-blue-600 mr-2"></i>Create New Category
+            {% endif %}
+        </h1>
+        <p class="text-gray-600">
+            {% if object %}
+                Update your category details below
+            {% else %}
+                Organize your inventory with a new category
+            {% endif %}
+        </p>
+    </div>
 
-    <form method="post">
-      {% csrf_token %}
+    <!-- Form Container -->
+    <div class="bg-white rounded-xl form-card overflow-hidden">
+        <form method="post" class="p-6 sm:p-8">
+            {% csrf_token %}
 
-      <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="id_name">
-          Name
-        </label>
-        <input type="text"
-               name="name"
-               id="id_name"
-               value="{{ form.name.value|default:'' }}"
-               class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-               required>
-        {% for error in form.name.errors %}
-        <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
-        {% endfor %}
-      </div>
+            <!-- Form Fields -->
+            <div class="space-y-6">
+                <!-- Name Field -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                    <div class="md:col-span-1">
+                        <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Category Name
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <p class="mt-1 text-xs text-gray-500">
+                            A short, descriptive name for your category
+                        </p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <div class="relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <div class="category-icon-preview">
+                                    <i class="fas fa-tag"></i>
+                                </div>
+                            </div>
+                            <input type="text" name="{{ form.name.name }}" id="{{ form.name.id_for_label }}"
+                                   value="{{ form.name.value|default:'' }}"
+                                   class="input-focus block w-full pl-14 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                   placeholder="e.g. Electronics, Clothing" required>
+                        </div>
+                        {% for error in form.name.errors %}
+                        <p class="mt-1 text-sm text-red-600 flex items-start">
+                            <i class="fas fa-exclamation-circle mt-0.5 mr-1.5 flex-shrink-0"></i>
+                            {{ error }}
+                        </p>
+                        {% endfor %}
+                    </div>
+                </div>
 
-      <div class="mb-6">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="id_description">
-          Description
-        </label>
-        <textarea name="description"
-                  id="id_description"
-                  rows="3"
-                  class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">{{ form.description.value|default:'' }}</textarea>
-        {% for error in form.description.errors %}
-        <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
-        {% endfor %}
-      </div>
+                <!-- Description Field -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                    <div class="md:col-span-1">
+                        <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Description
+                        </label>
+                        <p class="mt-1 text-xs text-gray-500">
+                            Optional details about this category
+                        </p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <textarea name="{{ form.description.name }}" id="{{ form.description.id_for_label }}"
+                                  rows="3" class="input-focus block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                  placeholder="Describe what products belong in this category">{{ form.description.value|default:'' }}</textarea>
+                        {% for error in form.description.errors %}
+                        <p class="mt-1 text-sm text-red-600 flex items-start">
+                            <i class="fas fa-exclamation-circle mt-0.5 mr-1.5 flex-shrink-0"></i>
+                            {{ error }}
+                        </p>
+                        {% endfor %}
+                    </div>
+                </div>
 
-      <div class="flex items-center justify-between">
-        <button type="submit"
-                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-          {% if object %}Update{% else %}Create{% endif %} Category
-        </button>
-        <a href="{% url 'category_list' %}" class="text-gray-600 hover:text-gray-800">
-          Cancel
-        </a>
-      </div>
-    </form>
-  </div>
+                <!-- Parent Category Field -->
+                {% if form.parent %}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                    <div class="md:col-span-1">
+                        <label for="{{ form.parent.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Parent Category
+                        </label>
+                        <p class="mt-1 text-xs text-gray-500">
+                            Optional parent category for hierarchy
+                        </p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <select name="{{ form.parent.name }}" id="{{ form.parent.id_for_label }}"
+                                class="input-focus block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                            <option value="">--- No parent category ---</option>
+                            {% for category in form.parent.field.queryset %}
+                            <option value="{{ category.pk }}" {% if form.parent.value == category.pk %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% for error in form.parent.errors %}
+                        <p class="mt-1 text-sm text-red-600 flex items-start">
+                            <i class="fas fa-exclamation-circle mt-0.5 mr-1.5 flex-shrink-0"></i>
+                            {{ error }}
+                        </p>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Form Actions -->
+            <div class="mt-10 pt-6 border-t border-gray-200 flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4">
+                <a href="{% url 'category_list' %}" class="btn-transition inline-flex items-center justify-center px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <i class="fas fa-times mr-2"></i> Cancel
+                </a>
+                <button type="submit" class="btn-transition inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform hover:scale-105">
+                    {% if object %}
+                        <i class="fas fa-save mr-2"></i> Update Category
+                    {% else %}
+                        <i class="fas fa-plus-circle mr-2"></i> Create Category
+                    {% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Additional Help Section -->
+    {% if not object %}
+    <div class="mt-8 bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-info-circle text-blue-400"></i>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">Category Tips</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>Use clear, consistent naming for easier organization</li>
+                        <li>Create hierarchies with parent categories for better structure</li>
+                        <li>Descriptions help team members understand category purpose</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add focus classes to all input fields
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.classList.add('input-focus', 'mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-blue-500', 'focus:ring-blue-500', 'sm:text-sm');
+
+        // Add specific classes based on input type
+        if (input.tagName === 'SELECT') {
+            input.classList.add('py-2', 'pl-3', 'pr-10');
+        } else if (input.tagName === 'TEXTAREA') {
+            input.classList.add('py-2', 'px-3');
+        } else {
+            input.classList.add('py-2', 'px-3');
+        }
+    });
+
+    // Character counter for description
+    const descriptionField = document.getElementById('{{ form.description.id_for_label }}');
+    if (descriptionField) {
+        const counter = document.createElement('p');
+        counter.className = 'mt-1 text-xs text-gray-500 text-right';
+        counter.id = 'description-counter';
+        descriptionField.parentNode.appendChild(counter);
+
+        function updateCounter() {
+            const remaining = 200 - descriptionField.value.length;
+            counter.textContent = `${descriptionField.value.length}/200 characters`;
+
+            if (remaining < 0) {
+                counter.classList.add('text-red-500');
+                counter.classList.remove('text-gray-500');
+            } else {
+                counter.classList.remove('text-red-500');
+                counter.classList.add('text-gray-500');
+            }
+        }
+
+        descriptionField.addEventListener('input', updateCounter);
+        updateCounter();
+    }
+});
+</script>
 {% endblock %}

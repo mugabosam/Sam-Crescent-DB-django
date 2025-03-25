@@ -1,58 +1,334 @@
 {% extends 'inventory/base.html' %}
 
-{% block title %}{{ product.name }}{% endblock %}
+{% block title %}{{ product.name }} | InFlow Counts{% endblock %}
+
+{% block extra_head %}
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-card {
+        animation: fadeIn 0.6s ease-out forwards;
+    }
+    .stock-level {
+        height: 8px;
+        border-radius: 4px;
+        background: linear-gradient(to right, #ef4444, #f59e0b, #10b981);
+    }
+    .stock-level-fill {
+        height: 100%;
+        border-radius: 4px;
+        background-color: #3b82f6;
+    }
+    .hover-scale {
+        transition: transform 0.2s ease;
+    }
+    .hover-scale:hover {
+        transform: scale(1.03);
+    }
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 9999px;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 py-8">
-    <div class="bg-white shadow rounded-lg p-6">
-        <div class="flex justify-between items-start mb-6">
-            <h1 class="text-3xl font-bold">{{ product.name }}</h1>
-            <a href="{% url 'product_update' product.pk %}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                Edit Product
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+        <div class="mb-4 md:mb-0">
+            <nav class="flex mb-4" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="{% url 'product_list' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                            <i class="fas fa-boxes mr-2"></i>
+                            Products
+                        </a>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fas fa-angle-right text-gray-400 mx-2"></i>
+                            <span class="text-sm font-medium text-gray-500">{{ product.name|truncatechars:20 }}</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+            <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+                <i class="fas fa-box text-blue-600 mr-3"></i>
+                {{ product.name }}
+                <span class="ml-4 status-badge
+                    {% if product.quantity_in_stock < product.reorder_level %}bg-red-100 text-red-800
+                    {% elif product.quantity_in_stock < product.reorder_level|add:5 %}bg-yellow-100 text-yellow-800
+                    {% else %}bg-green-100 text-green-800{% endif %}">
+                    {% if product.quantity_in_stock < product.reorder_level %}Critical
+                    {% elif product.quantity_in_stock < product.reorder_level|add:5 %}Low
+                    {% else %}In Stock{% endif %}
+                </span>
+            </h1>
+            <p class="mt-2 text-gray-600">SKU: {{ product.sku|default:"Not specified" }}</p>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{% url 'product_update' product.pk %}"
+               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover-scale">
+                <i class="fas fa-edit mr-2"></i> Edit Product
+            </a>
+            <a href="{% url 'product_list' %}"
+               class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover-scale">
+                <i class="fas fa-arrow-left mr-2"></i> Back to List
             </a>
         </div>
+    </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <h2 class="text-xl font-semibold mb-3">Basic Information</h2>
-                <dl class="space-y-2">
-                    <div>
-                        <dt class="font-medium">Description</dt>
-                        <dd class="text-gray-600">{{ product.parent|default:"No description" }}</dd>
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column - Product Details -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Product Information Card -->
+            <div class="bg-white shadow rounded-lg overflow-hidden animate-card">
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-info-circle text-blue-500 mr-2"></i> Product Information
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <dl class="space-y-4">
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Description</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">
+                                        {{ product.description|default:"No description provided" }}
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Category</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">
+                                        {{ product.category.name|default:"Uncategorized" }}
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Barcode</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">
+                                        {{ product.barcode|default:"Not specified" }}
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+                        <div>
+                            <dl class="space-y-4">
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Created</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">
+                                        {{ product.created_at|date:"M d, Y" }}
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Last Updated</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">
+                                        {{ product.updated_at|date:"M d, Y" }}
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Product ID</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">
+                                        {{ product.id }}
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
                     </div>
-                    <div>
-                        <dt class="font-medium">Category</dt>
-                        <dd class="text-gray-600">{{ product.category.name|default:"No category" }}</dd>
-                    </div>
-                </dl>
+                </div>
             </div>
 
-            <div>
-                <h2 class="text-xl font-semibold mb-3">Supplier Details</h2>
-                <dl class="space-y-2">
-                    <div>
-                        <dt class="font-medium">Supplier</dt>
-                        <dd class="text-gray-600">{{ product.supplier.name|default:"No supplier" }}</dd>
+            <!-- Supplier Information Card -->
+            <div class="bg-white shadow rounded-lg overflow-hidden animate-card" style="animation-delay: 0.1s">
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-truck text-purple-500 mr-2"></i> Supplier Information
+                    </h2>
+                    {% if product.supplier %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <dl class="space-y-4">
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Supplier Name</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">
+                                        {{ product.supplier.name }}
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Contact Email</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">
+                                        {{ product.supplier.email|default:"Not specified" }}
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+                        <div>
+                            <dl class="space-y-4">
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Phone</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">
+                                        {{ product.supplier.phone|default:"Not specified" }}
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Lead Time</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">
+                                        {{ product.supplier.lead_time|default:"Not specified" }} days
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
                     </div>
-                </dl>
+                    <div class="mt-6">
+                        <a href="{% url 'supplier_detail' product.supplier.pk %}"
+                           class="inline-flex items-center text-blue-600 hover:text-blue-800">
+                            View full supplier details <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                    {% else %}
+                    <p class="text-gray-500">No supplier assigned to this product.</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
-        <div class="mt-8 pt-6 border-t border-gray-200">
-            <h2 class="text-xl font-semibold mb-4">Stock Information</h2>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <dt class="font-medium">Current Stock</dt>
-                    <dd class="text-2xl font-bold {% if product.quantity <= product.low_stock_threshold %}text-red-600{% else %}text-green-600{% endif %}">
-                        {{ product.quantity }}
-                    </dd>
+        <!-- Right Column - Stock & Pricing -->
+        <div class="space-y-6">
+            <!-- Stock Status Card -->
+            <div class="bg-white shadow rounded-lg overflow-hidden animate-card" style="animation-delay: 0.2s">
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-warehouse text-green-500 mr-2"></i> Stock Status
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-700">Current Stock Level</span>
+                                <span class="text-sm font-medium {% if product.quantity_in_stock < product.reorder_level %}text-red-600{% elif product.quantity_in_stock < product.reorder_level|add:5 %}text-yellow-600{% else %}text-green-600{% endif %}">
+                                    {{ product.quantity_in_stock }} units
+                                </span>
+                            </div>
+                            <div class="stock-level">
+                                <div class="stock-level-fill" style="width: {% widthratio product.quantity_in_stock product.reorder_level|add:10 100 %}%"></div>
+                            </div>
+                            <div class="flex justify-between mt-1 text-xs text-gray-500">
+                                <span>0</span>
+                                <span>Reorder: {{ product.reorder_level }}</span>
+                                <span>{{ product.reorder_level|add:10 }}</span>
+                            </div>
+                        </div>
+                        <dl class="grid grid-cols-2 gap-4">
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <dt class="text-sm font-medium text-gray-500">Minimum Stock</dt>
+                                <dd class="mt-1 text-lg font-semibold text-gray-900">{{ product.reorder_level }}</dd>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <dt class="text-sm font-medium text-gray-500">Last Restock</dt>
+                                <dd class="mt-1 text-sm text-gray-900">
+                                    {{ product.last_restock_date|default:"Never" }}
+                                </dd>
+                            </div>
+                        </dl>
+                        {% if product.quantity_in_stock < product.reorder_level %}
+                        <div class="mt-4 bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-triangle text-red-400"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-red-700">
+                                        <span class="font-medium">Alert!</span> Stock level is below reorder point. Consider restocking soon.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
-                <div>
-                    <dt class="font-medium">Price</dt>
-                    <dd class="text-2xl font-bold text-gray-800">${{ product.price }}</dd>
+            </div>
+
+            <!-- Pricing Information Card -->
+            <div class="bg-white shadow rounded-lg overflow-hidden animate-card" style="animation-delay: 0.3s">
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-tag text-yellow-500 mr-2"></i> Pricing Information
+                    </h2>
+                    <dl class="space-y-4">
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <dt class="text-sm font-medium text-gray-500">Selling Price</dt>
+                            <dd class="mt-1 text-2xl font-bold text-gray-900">${{ product.price }}</dd>
+                        </div>
+                        {% if product.cost_price %}
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <dt class="text-sm font-medium text-gray-500">Cost Price</dt>
+                            <dd class="mt-1 text-xl font-semibold text-gray-900">${{ product.cost_price }}</dd>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <dt class="text-sm font-medium text-gray-500">Profit Margin</dt>
+                            <dd class="mt-1 text-xl font-semibold
+                                {% if product.margin > 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                                {% widthratio product.margin 1 100 %}%
+                            </dd>
+                        </div>
+                        {% endif %}
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <dt class="text-sm font-medium text-gray-500">Tax Rate</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                {{ product.tax_rate|default:"Not specified" }}%
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Quick Actions Card -->
+            <div class="bg-white shadow rounded-lg overflow-hidden animate-card" style="animation-delay: 0.4s">
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-bolt text-purple-500 mr-2"></i> Quick Actions
+                    </h2>
+                    <div class="grid grid-cols-2 gap-3">
+                        <a href="#" class="bg-blue-50 hover:bg-blue-100 text-blue-700 p-3 rounded-lg text-center transition duration-300 hover-scale">
+                            <i class="fas fa-plus-circle text-lg mb-1"></i>
+                            <p class="text-sm font-medium">Add Stock</p>
+                        </a>
+                        <a href="#" class="bg-green-50 hover:bg-green-100 text-green-700 p-3 rounded-lg text-center transition duration-300 hover-scale">
+                            <i class="fas fa-exchange-alt text-lg mb-1"></i>
+                            <p class="text-sm font-medium">Transfer</p>
+                        </a>
+                        <a href="#" class="bg-yellow-50 hover:bg-yellow-100 text-yellow-700 p-3 rounded-lg text-center transition duration-300 hover-scale">
+                            <i class="fas fa-chart-line text-lg mb-1"></i>
+                            <p class="text-sm font-medium">View History</p>
+                        </a>
+                        <a href="{% url 'product_delete' product.pk %}" class="bg-red-50 hover:bg-red-100 text-red-700 p-3 rounded-lg text-center transition duration-300 hover-scale">
+                            <i class="fas fa-trash-alt text-lg mb-1"></i>
+                            <p class="text-sm font-medium">Delete</p>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add animation delays to cards
+    const cards = document.querySelectorAll('.animate-card');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+    });
+
+    // Initialize tooltips for action buttons
+    tippy('[data-tippy-content]', {
+        arrow: true,
+        animation: 'scale',
+        duration: 200,
+    });
+});
+</script>
 {% endblock %}
